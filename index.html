@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>✨ lush · to‑do ✨</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background: linear-gradient(145deg, #f9f0e7 0%, #f3dfd1 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+
+    .glass-card {
+      width: 100%;
+      max-width: 620px;
+      background: rgba(255, 250, 245, 0.75);
+      backdrop-filter: blur(14px) saturate(180%);
+      -webkit-backdrop-filter: blur(14px) saturate(180%);
+      border-radius: 48px;
+      box-shadow: 0 25px 50px -10px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(255, 255, 255, 0.6) inset;
+      padding: 2.2rem 2rem;
+      transition: all 0.2s ease;
+    }
+
+    h1 {
+      font-size: 2.6rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      background: linear-gradient(135deg, #7f5a4b, #b48b7a);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      margin-bottom: 0.2rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    h1 span {
+      font-size: 2rem;
+      background: none;
+      -webkit-background-clip: unset;
+      background-clip: unset;
+      color: #c6a28b;
+    }
+
+    .subhead {
+      font-size: 0.95rem;
+      color: #a4816e;
+      padding-left: 0.3rem;
+      margin-bottom: 1.8rem;
+      font-weight: 400;
+      border-left: 3px solid #dbb9a4;
+      padding-left: 0.9rem;
+    }
+
+    /* add task row */
+    .add-task {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 2.5rem;
+    }
+
+    .add-task input {
+      flex: 1;
+      background: rgba(255, 245, 235, 0.7);
+      border: 1.5px solid #edd7cb;
+      border-radius: 60px;
+      padding: 1rem 1.5rem;
+      font-size: 1rem;
+      color: #3f2e26;
+      outline: none;
+      transition: all 0.2s;
+      box-shadow: 0 4px 10px rgba(180, 130, 110, 0.08);
+    }
+
+    .add-task input:focus {
+      border-color: #cfa88e;
+      background: #fffcf8;
+      box-shadow: 0 8px 18px rgba(160, 110, 80, 0.12);
+    }
+
+    .add-task input::placeholder {
+      color: #b9a090;
+      font-weight: 300;
+      font-style: italic;
+    }
+
+    .add-task button {
+      background: #dbb9a4;
+      border: none;
+      width: 3.8rem;
+      height: 3.8rem;
+      border-radius: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: 0.2s;
+      box-shadow: 0 6px 14px #d6b2a0;
+      color: white;
+      font-size: 2rem;
+      line-height: 1;
+    }
+
+    .add-task button:hover {
+      background: #c69d84;
+      transform: scale(1.03) rotate(2deg);
+      box-shadow: 0 10px 20px #cbab98;
+    }
+
+    /* task list */
+    .task-list {
+      list-style: none;
+      margin-bottom: 2rem;
+      max-height: 400px;
+      overflow-y: auto;
+      padding-right: 6px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .task-list li {
+      background: rgba(255, 250, 245, 0.7);
+      backdrop-filter: blur(4px);
+      border-radius: 50px;
+      padding: 0.5rem 0.5rem 0.5rem 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 6px 12px rgba(150, 110, 90, 0.1);
+      border: 1px solid #ffeade;
+      transition: all 0.2s;
+    }
+
+    .task-list li:hover {
+      background: #fffaf4;
+      border-color: #edd2be;
+      box-shadow: 0 10px 20px rgba(170, 130, 100, 0.12);
+    }
+
+    .task-list li .task-content {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    /* custom checkbox */
+    .task-list li input[type="checkbox"] {
+      appearance: none;
+      -webkit-appearance: none;
+      width: 26px;
+      height: 26px;
+      background: white;
+      border-radius: 30px;
+      border: 2px solid #dbbaa6;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: 0.1s;
+      box-shadow: 0 2px 6px #ecd7c9;
+    }
+
+    .task-list li input[type="checkbox"]:checked {
+      background: #cfa88e;
+      border-color: #b48162;
+      position: relative;
+    }
+
+    .task-list li input[type="checkbox"]:checked::after {
+      content: "✓";
+      color: white;
+      font-size: 18px;
+      font-weight: bold;
+      line-height: 1;
+    }
+
+    .task-list li .task-text {
+      font-size: 1.2rem;
+      font-weight: 470;
+      color: #3c2c23;
+      word-break: break-word;
+      padding: 8px 0;
+    }
+
+    .task-list li.completed .task-text {
+      text-decoration: line-through;
+      color: #b09484;
+      font-weight: 350;
+    }
+
+    /* action buttons */
+    .task-actions {
+      display: flex;
+      gap: 6px;
+      margin-right: 6px;
+    }
+
+    .task-actions button {
+      background: transparent;
+      border: none;
+      width: 42px;
+      height: 42px;
+      border-radius: 40px;
+      font-size: 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: #ac8b78;
+      transition: all 0.15s;
+    }
+
+    .task-actions button:hover {
+      background: #f2ded1;
+      color: #7a5340;
+      transform: scale(1.08);
+    }
+
+    .task-actions .delete-btn:hover {
+      color: #c15541;
+      background: #ffe3db;
+    }
+
+    /* empty state */
+    .empty-message {
+      text-align: center;
+      padding: 2rem 1rem 1.8rem;
+      color: #bda596;
+      font-size: 1.2rem;
+      font-weight: 350;
+      background: rgba(250, 240, 230, 0.5);
+      border-radius: 80px;
+      backdrop-filter: blur(4px);
+      border: 1px dashed #dac2b2;
+    }
+
+    .empty-message span {
+      font-size: 2rem;
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    /* footer stats + clear */
+    .footer-stats {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-top: 2px solid #eedacf;
+      padding-top: 1.5rem;
+      margin-top: 0.5rem;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .counter {
+      background: #f3e2d8;
+      padding: 0.5rem 1.4rem;
+      border-radius: 40px;
+      color: #65473a;
+      font-weight: 500;
+      font-size: 0.95rem;
+      box-shadow: inset 0 1px 4px #ffe6d9;
+    }
+
+    .clear-btn {
+      background: transparent;
+      border: 1.5px solid #dbb9a6;
+      padding: 0.6rem 1.8rem;
+      border-radius: 40px;
+      color: #856b5c;
+      font-weight: 550;
+      font-size: 0.9rem;
+      letter-spacing: 0.2px;
+      cursor: pointer;
+      transition: 0.15s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .clear-btn:hover {
+      background: #e9cfbf;
+      border-color: #b7886e;
+      color: #4a3328;
+      box-shadow: 0 4px 10px #ebd5c8;
+    }
+
+    /* scrollbar */
+    .task-list::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .task-list::-webkit-scrollbar-track {
+      background: #f0dfd4;
+      border-radius: 20px;
+    }
+
+    .task-list::-webkit-scrollbar-thumb {
+      background: #cfb2a2;
+      border-radius: 20px;
+    }
+
+    .task-list::-webkit-scrollbar-thumb:hover {
+      background: #b7917c;
+    }
+  </style>
+</head>
+<body>
+<div class="glass-card">
+  <h1>
+    ✦ lush.do <span>⋆｡°✩</span>
+  </h1>
+  <div class="subhead">soft tasks, gentle progress — stored just for you</div>
+
+  <!-- input area -->
+  <div class="add-task">
+    <input type="text" id="taskInput" placeholder="write a new task ..." autofocus>
+    <button id="addTaskBtn" aria-label="add task">+</button>
+  </div>
+
+  <!-- tasks list -->
+  <ul class="task-list" id="taskListContainer">
+    <!-- dynamic content from js -->
+  </ul>
+
+  <!-- footer with counters & clear -->
+  <div class="footer-stats">
+    <div class="counter" id="taskCounter">0 tasks</div>
+    <button class="clear-btn" id="clearCompletedBtn">✓ clear completed</button>
+  </div>
+</div>
+
+<script>
+  (function() {
+    // --- get DOM elements ---
+    const taskInput = document.getElementById('taskInput');
+    const addBtn = document.getElementById('addTaskBtn');
+    const taskList = document.getElementById('taskListContainer');
+    const taskCounter = document.getElementById('taskCounter');
+
+    // --- task array (source of truth) ---
+    let tasks = [];
+
+    // --- load from localStorage ---
+    function loadTasks() {
+      try {
+        const stored = localStorage.getItem('lushTodoList');
+        if (stored) {
+          tasks = JSON.parse(stored);
+        } else {
+          // friendly default samples (only first visit)
+          tasks = [
+            { id: '1', text: 'water the plants 🌿', completed: false },
+            { id: '2', text: 'write a sweet note ✍️', completed: true },
+            { id: '3', text: 'stretch for 5 min 🧘', completed: false },
+          ];
+        }
+        // ensure every task has proper structure (prevents corruption)
+        tasks = tasks.filter(t => t && typeof t === 'object').map(t => ({
+          id: t.id || crypto.randomUUID ? crypto.randomUUID() : Date.now() + '-' + Math.random(),
+          text: t.text || 'untitled',
+          completed: t.completed === true // ensure boolean
+        }));
+      } catch (e) {
+        console.warn('localStorage read failed, use defaults');
+        tasks = [];
+      }
+    }
+
+    // --- save to localStorage ---
+    function saveTasks() {
+      try {
+        localStorage.setItem('lushTodoList', JSON.stringify(tasks));
+      } catch (e) {}
+    }
+
+    // --- render the whole list based on tasks array ---
+    function renderTasks() {
+      if (!taskList) return;
+
+      if (tasks.length === 0) {
+        taskList.innerHTML = `<li class="empty-message"><span>☁️</span> your list is quiet<br>add something lovely</li>`;
+        taskCounter.innerText = `0 tasks`;
+        return;
+      }
+
+      let htmlString = '';
+      let completedCount = 0;
+
+      tasks.forEach(task => {
+        const isCompleted = task.completed;
+        if (isCompleted) completedCount++;
+
+        const liClass = isCompleted ? 'completed' : '';
+        // use template literals to build row
+        htmlString += `
+          <li data-id="${task.id}" class="${liClass}">
+            <div class="task-content">
+              <input type="checkbox" ${isCompleted ? 'checked' : ''} class="task-checkbox">
+              <span class="task-text">${escapeHtml(task.text)}</span>
+            </div>
+            <div class="task-actions">
+              <button class="delete-btn" aria-label="delete task">🗑️</button>
+            </div>
+          </li>
+        `;
+      });
+
+      taskList.innerHTML = htmlString;
+      const total = tasks.length;
+      const pending = total - completedCount;
+      taskCounter.innerText = `${pending} pending · ${total} total`;
+
+      // Attach dynamic listeners to checkboxes and delete buttons after render
+      attachTaskListeners();
+    }
+
+    // simple escape to prevent XSS (though we trust input, but beautiful practice)
+    function escapeHtml(unsafe) {
+      if (!unsafe) return '';
+      return unsafe
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    // --- attach per-task events ---
+    function attachTaskListeners() {
+      const items = taskList.querySelectorAll('li[data-id]');
+      items.forEach(li => {
+        const id = li.getAttribute('data-id');
+        if (!id) return;
+
+        // checkbox toggle
+        const cb = li.querySelector('.task-checkbox');
+        if (cb) {
+          cb.removeEventListener('change', handleToggle);
+          cb.addEventListener('change', handleToggle);
+        }
+
+        // delete button
+        const delBtn = li.querySelector('.delete-btn');
+        if (delBtn) {
+          delBtn.removeEventListener('click', handleDelete);
+          delBtn.addEventListener('click', handleDelete);
+        }
+      });
+    }
+
+    // --- toggle completed ---
+    function handleToggle(e) {
+      e.stopPropagation();
+      const li = e.target.closest('li[data-id]');
+      if (!li) return;
+      const id = li.getAttribute('data-id');
+      const task = tasks.find(t => t.id === id);
+      if (task) {
+        task.completed = e.target.checked;
+        saveTasks();
+        renderTasks();  // re-render to reflect class change & counters
+      }
+    }
+
+    // --- delete task ---
+    function handleDelete(e) {
+      e.stopPropagation();
+      const li = e.target.closest('li[data-id]');
+      if (!li) return;
+      const id = li.getAttribute('data-id');
+      tasks = tasks.filter(t => t.id !== id);
+      saveTasks();
+      renderTasks();
+    }
+
+    // --- add new task ---
+    function addNewTask() {
+      const rawText = taskInput.value.trim();
+      if (rawText === '') {
+        // gentle wiggle effect as hint
+        taskInput.style.transition = '0.2s';
+        taskInput.style.transform = 'translateX(4px)';
+        setTimeout(() => taskInput.style.transform = '', 150);
+        return;
+      }
+
+      const newTask = {
+        id: crypto.randomUUID ? crypto.randomUUID() : Date.now() + '-' + Math.random().toString(36).substring(2),
+        text: rawText,
+        completed: false,
+      };
+      tasks.push(newTask);
+      saveTasks();
+      renderTasks();
+      taskInput.value = '';        // clear input
+      taskInput.focus();
+    }
+
+    // --- clear completed tasks ---
+    function clearCompleted() {
+      const anyCompleted = tasks.some(t => t.completed);
+      if (!anyCompleted) {
+        // subtle animation on counter
+        taskCounter.style.backgroundColor = '#f3d9cc';
+        setTimeout(() => taskCounter.style.backgroundColor = '', 200);
+        return;
+      }
+      tasks = tasks.filter(t => !t.completed);
+      saveTasks();
+      renderTasks();
+    }
+
+    // --- initial load & render ---
+    loadTasks();
+    renderTasks();
+
+    // --- event listeners (global) ---
+    addBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      addNewTask();
+    });
+
+    taskInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        addNewTask();
+      }
+    });
+
+    document.getElementById('clearCompletedBtn').addEventListener('click', (e) => {
+      e.preventDefault();
+      clearCompleted();
+    });
+
+    // optional: if user clicks outside we save (already saved on every mutation)
+    // but we keep storage sync via saveTasks in each operation
+
+    // handle edge case: manual change via dev tools? no need.
+
+    // re-save if any external modification (not needed but for completeness)
+    window.addEventListener('beforeunload', function() {
+      saveTasks(); // just in case
+    });
+
+  })();
+</script>
+</body>
+</html>
