@@ -26,6 +26,7 @@
       const focusStatus = document.getElementById('focusStatus');
       const focusTime = document.getElementById('focusTime');
       const alarmSound = document.getElementById('alarmSound');
+      const successSound = document.getElementById('successSound');
       const profileAvatar = document.getElementById('profileAvatar');
       const profileName = document.getElementById('profileName');
       const profileBio = document.getElementById('profileBio');
@@ -271,7 +272,12 @@
             isTimerRunning: false
           };
           tasks.push(newTask);
-          showToast('Task added!');
+          showToast('👍 Task added successfully!');
+          if (successSound) {
+            successSound.currentTime = 0;
+            successSound.play().catch(e => console.error('Success sound playback failed:', e));
+          }
+
           if (tasks.filter(t => !t.completed).length === 1) {
             triggerConfetti();
           }
@@ -385,11 +391,6 @@
         const task = tasks.find(t => t.id === id);
         if (task) {
           task.isTimerRunning = !task.isTimerRunning;
-
-          if (task.isTimerRunning) {
-            alarmSound.load();
-          }
-
           saveTasks();
           renderTasks();
         }
@@ -624,5 +625,16 @@
 
       // Auto-save
       window.addEventListener('beforeunload', saveTasks);
+
+      // --- Audio Context Unlocker ---
+      // Browsers require a user interaction to enable audio.
+      // This function runs once on the first click or keypress anywhere on the page
+      // to ensure sounds can be played programmatically later.
+      function unlockAudio() {
+        alarmSound.load();
+        successSound.load();
+      }
+      document.body.addEventListener('click', unlockAudio, { once: true });
+      document.body.addEventListener('keydown', unlockAudio, { once: true });
     })();
   
