@@ -27,8 +27,8 @@
       const focusTime = document.getElementById('focusTime');
       const alarmSound = document.getElementById('alarmSound');
       const profileAvatar = document.getElementById('profileAvatar');
-      const avatarInput = document.getElementById('avatarInput');
       const profileName = document.getElementById('profileName');
+      const profileBio = document.getElementById('profileBio');
       const profileStats = document.getElementById('profileStats');
       
       // My Category elements
@@ -86,6 +86,7 @@
       function loadProfile() {
         const name = localStorage.getItem('auraProfileName');
         const image = localStorage.getItem('auraProfileImage');
+        const bio = localStorage.getItem('auraProfileBio');
         
         if (name) {
           profileName.textContent = name;
@@ -95,6 +96,7 @@
           profileAvatar.style.backgroundImage = `url(${image})`;
           profileAvatar.textContent = '';
         }
+        if (bio && profileBio) profileBio.textContent = bio;
       }
 
       function getTodayDate() {
@@ -454,30 +456,90 @@
         voiceBtn.title = 'Voice not supported';
       }
 
-      // Profile events
-      profileAvatar.addEventListener('click', () => avatarInput.click());
+      // --- Profile Modal Logic ---
+      const profileModal = document.getElementById('profileModal');
+      const closeProfileModal = document.getElementById('closeProfileModal');
+      const modalAvatarPreview = document.getElementById('modalAvatarPreview');
+      const triggerAvatarInput = document.getElementById('triggerAvatarInput');
+      const modalAvatarInput = document.getElementById('modalAvatarInput');
+      const editName = document.getElementById('editName');
+      const editBio = document.getElementById('editBio');
+      const saveProfileBtn = document.getElementById('saveProfileBtn');
       
-      avatarInput.addEventListener('change', (e) => {
+      let tempAvatarUrl = '';
+
+      function openProfileModal() {
+        const currentName = localStorage.getItem('auraProfileName') || 'Alex Rivera';
+        const currentBio = localStorage.getItem('auraProfileBio') || '';
+        const currentImage = localStorage.getItem('auraProfileImage');
+
+        editName.value = currentName;
+        editBio.value = currentBio;
+        
+        if (currentImage) {
+            modalAvatarPreview.style.backgroundImage = `url(${currentImage})`;
+            modalAvatarPreview.textContent = '';
+            tempAvatarUrl = currentImage;
+        } else {
+            modalAvatarPreview.style.backgroundImage = '';
+            modalAvatarPreview.textContent = '👤';
+            tempAvatarUrl = '';
+        }
+
+        profileModal.classList.add('active');
+      }
+
+      function closeProfileModalFunc() {
+        profileModal.classList.remove('active');
+      }
+
+      function saveProfile() {
+        const newName = editName.value.trim();
+        const newBio = editBio.value.trim();
+        
+        if (newName) {
+            localStorage.setItem('auraProfileName', newName);
+            profileName.textContent = newName;
+        }
+        
+        localStorage.setItem('auraProfileBio', newBio);
+        if (profileBio) profileBio.textContent = newBio;
+        
+        if (tempAvatarUrl) {
+            localStorage.setItem('auraProfileImage', tempAvatarUrl);
+            profileAvatar.style.backgroundImage = `url(${tempAvatarUrl})`;
+            profileAvatar.textContent = '';
+        }
+
+        closeProfileModalFunc();
+        showToast('Profile updated!');
+      }
+
+      // Profile Event Listeners
+      profileAvatar.addEventListener('click', openProfileModal);
+      profileName.addEventListener('click', openProfileModal);
+      
+      closeProfileModal.addEventListener('click', closeProfileModalFunc);
+      profileModal.addEventListener('click', (e) => {
+        if (e.target === profileModal) closeProfileModalFunc();
+      });
+
+      triggerAvatarInput.addEventListener('click', () => modalAvatarInput.click());
+
+      modalAvatarInput.addEventListener('change', (e) => {
         const file = e.target.files[0];
         if (file) {
           const reader = new FileReader();
           reader.onload = function(event) {
-            const imageUrl = event.target.result;
-            localStorage.setItem('auraProfileImage', imageUrl);
-            profileAvatar.style.backgroundImage = `url(${imageUrl})`;
-            profileAvatar.textContent = '';
+            tempAvatarUrl = event.target.result;
+            modalAvatarPreview.style.backgroundImage = `url(${tempAvatarUrl})`;
+            modalAvatarPreview.textContent = '';
           };
           reader.readAsDataURL(file);
         }
       });
 
-      profileName.addEventListener('click', () => {
-        const newName = prompt('Enter your name:', profileName.textContent);
-        if (newName) {
-          profileName.textContent = newName;
-          localStorage.setItem('auraProfileName', newName);
-        }
-      });
+      saveProfileBtn.addEventListener('click', saveProfile);
 
       // Event listeners
       addBtn.addEventListener('click', addTask);
