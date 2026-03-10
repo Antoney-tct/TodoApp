@@ -881,7 +881,7 @@
   <button class="voice-btn" id="voiceBtn" title="Voice input"></button>
 
   <!-- Alarm Sound -->
-  <audio id="alarmSound" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg" preload="auto"></audio>
+  <audio id="alarmSound" src="sound/notesound.mp3" preload="auto"></audio>
 
   <script>
     (function() {
@@ -1352,9 +1352,15 @@
           showToast('Voice captured!');
         };
 
-        recognition.onerror = () => {
+        recognition.onerror = (event) => {
           voiceBtn.classList.remove('listening');
-          showToast('Voice input failed');
+          let errorMessage = 'Voice input failed. Please try again.';
+          if (event.error === 'not-allowed') {
+            errorMessage = 'Microphone access denied. Please allow it in your browser settings.';
+          } else if (event.error === 'no-speech') {
+            errorMessage = 'No speech detected. Please try again.';
+          }
+          showToast(errorMessage);
         };
       } else {
         voiceBtn.style.opacity = '0.5';
